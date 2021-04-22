@@ -1,0 +1,462 @@
+// @mixin container-fluid()
+// t-width% = t-wrapper / t-макет  84% = 640px / 768% = 83.3% ~ 84% (0.84)
+// d-width% = d-wrapper / d-макет   84% = 1008px / 1200% = 84%
+
+// t-width% = d-width%;              84% = 84%
+// @mixin container-fluid() {      @mixin container-fluid() {
+//   width: auto;                    width: auto;
+//   @media ($md) {       @media ($md) {
+//     width: t-width %;                width: 84%;
+//     max-width: d-wrapper px;         max-width: 1008px;
+//     margin: 0 auto;                  margin: 0 auto;
+//   }                                }
+// }                                }
+
+// 88% = 620px / 700% = 88.5% ~ 88% (0.88)
+// 78% = 940px / 1200% = 78.3%
+// if { t-width > d-width} than                 if { 88% > 78%} than
+// @mixin container-fluid() {                   @mixin container-fluid() {
+//   width: auto;                                 width: auto;
+//   @media ($md) {                    @media ($md) {
+//     width: t-width %;                             width: 88%;
+//     max-width: X px (X / t-width = d-макет);      max-width: 1056* px (1056px / 0.88 = 1200px);
+//     margin: 0 auto;                               margin: 0 auto;
+//   }                                            }
+// }                                           }
+// *методом подстановки с 940 и в большую сторону
+
+@mixin font-face($font-family, $file-path, $weight: normal, $style: normal, $asset-pipeline: false) {
+  @font-face {
+    font-family: $font-family;
+    font-weight: $weight;
+    font-style: $style;
+
+    @if $asset-pipeline == true {
+      src: font-url("#{$file-path}.eot");
+      src: font-url("#{$file-path}.eot?#iefix") format("embedded-opentype"), font-url("#{$file-path}.woff") format("woff"), font-url("#{$file-path}.ttf") format("truetype");
+    }
+    @else {
+      src: url("#{$file-path}.eot");
+      src: url("#{$file-path}.eot?#iefix") format("embedded-opentype"), url("#{$file-path}.woff") format("woff"), url("#{$file-path}.ttf") format("truetype");
+    }
+  }
+}
+
+@mixin clearfix() {
+  &::after {
+    content: "";
+
+    display: table;
+    clear: both;
+  }
+}
+
+@mixin container() {
+  width: 280px;
+  margin: 0 auto;
+
+  @media ($md) {
+    width: 620px;
+  }
+
+  @media ($xl) {
+    width: 940px;
+  }
+}
+
+@mixin container-fluid() {
+  width: auto;
+
+  @media ($md) {
+    width: 88%;
+    max-width: 1056px;
+    margin: 0 auto;
+  }
+}
+
+// Для %placeholders в сниппете @include
+
+$mixin-xs: 320px;
+$mixin-xs-locked: 575px;
+$mixin-sm: 576px;
+$mixin-md: 768px;
+$mixin-lg: 992px;
+$mixin-xl: 1200px;
+
+@mixin md($size, $type: min, $pixels: $mixin-xs) {
+  @if $size == 'xs' {
+    @media screen and ($type + -width: $mixin-xs) {
+        @content;
+    }
+  }
+  @if $size == 'xs-locked' {
+    @media screen and (max + -width: $mixin-xs-locked) {
+        @content;
+    }
+  }
+  @else if $size == 'sm' {
+    @media screen and ($type + -width: $mixin-sm) {
+        @content;
+    }
+  }
+  @else if $size == 'md' {
+    @media screen and ($type + -width: $mixin-md) {
+        @content;
+    }
+  }
+ @else if $size == 'lg' {
+    @media screen and ($type + -width: $mixin-lg) {
+        @content;
+    }
+  }
+  @else if $size == 'xl' {
+    @media screen and ($type + -width: $mixin-xl) {
+     @content;
+    }
+  }
+  @else {
+    @content;
+  }
+}
+
+// Ретина
+// Образец применения есть в scss slider bgi 1t/1w.
+// Для одного изображения без версий -md, -xl
+@mixin retina-bgi-one($file, $type, ) {
+  background: url($file + '.' + $type);
+  background-size: cover;
+  @media (-webkit-min-device-pixel-ratio: 1.25),
+         (min-resolution: 120dpi)
+  	{
+      background: url($file + '@2x.' + $type);
+      background-size: cover;
+  	}
+}
+
+// Ретина
+// Образец применения есть в scss slider bgi 2t/2w
+// Включает версии -md, -xl
+@mixin retina-bgi-multi($file, $type, ) {
+  background: url($file + '.' + $type);
+  background-size: cover;
+  @media (-webkit-min-device-pixel-ratio: 1.25),
+         (min-resolution: 120dpi)
+  	{
+      background: url($file + '@2x.' + $type);
+      background-size: cover;
+  	}
+  @media ($md) {
+    background: url($file + '-md' + '.' + $type);
+    background-size: cover;
+    @media (-webkit-min-device-pixel-ratio: 1.25),
+           (min-resolution: 120dpi)
+      {
+        background: url($file + '-md' + '@2x.' + $type);
+        background-size: cover;
+      }
+  }
+  @media ($xl) {
+    background: url($file + '-xl' + '.' + $type);
+    background-size: cover;
+    @media (-webkit-min-device-pixel-ratio: 1.25),
+           (min-resolution: 120dpi)
+      {
+        background: url($file + '-xl' + '@2x.' + $type);
+        background-size: cover;
+      }
+  }
+}
+
+// Шрифт
+// Fonts. Тоже самое только с REM вместо EM
+$browser-context: 16; // Default не менять
+@function rem($pixels, $context: $browser-context) {
+  @return #{$pixels/$context}rem;
+}
+
+@mixin Text-Style-20 {
+  font-family: HelveticaNeueCyr;
+  font-size: 36px;
+  font-weight: bold;
+  line-height: 1.06;
+
+  color: $white;
+}
+
+@mixin Text-Style {
+  font-family: HelveticaNeueCyr;
+  font-size: 26px;
+  font-weight: bold;
+  line-height: 1.08;
+
+  color: $white;
+}
+
+@mixin Text-Style-24 {
+  font-family: HelveticaNeueCyr;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 0.67;
+
+  color: $black-three;
+}
+
+@mixin Text-Style-17 {
+  font-family: HelveticaNeueCyr;
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 0.82;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-5 {
+  font-family: HelveticaNeueCyr;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-33 {
+  font-family: HelveticaNeueCyr;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.13;
+
+  color: $sick-green;
+}
+
+@mixin Text-Style-27 {
+  font-family: HelveticaNeueCyr;
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 2;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-32 {
+  font-family: HelveticaNeueCyr;
+  font-size: 15px;
+  line-height: 1.87;
+
+  color: $black-two;
+}
+
+@mixin Text-Style-19 {
+  font-family: HelveticaNeueCyr;
+  font-size: 15px;
+  line-height: 1.07;
+
+  color: $black-three;
+}
+
+@mixin Text-Style-16 {
+  font-family: HelveticaNeueCyr;
+  font-size: 15px;
+  line-height: 1.2;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-13 {
+  font-family: HelveticaNeueCyr;
+  font-size: 15px;
+  line-height: 1.87;
+  letter-spacing: -0.75px;
+
+  color: $black-two;
+}
+
+@mixin Text-Style-11 {
+  font-family: HelveticaNeueCyr;
+  font-size: 15px;
+  line-height: 1.87;
+  letter-spacing: -0.75px;
+
+  color: $white;
+}
+
+@mixin Text-Style-7 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.36;
+
+  color: $sick-green;
+}
+
+@mixin Text-Style-3 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.79;
+
+  color: $sick-green-two;
+}
+
+@mixin Text-Style-26 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.79;
+
+  color: $sick-green;
+}
+
+@mixin Text-Style-15 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.79;
+
+  color: $white;
+}
+
+@mixin Text-Style-22 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.14;
+
+  color: $white;
+}
+
+@mixin Text-Style-4 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  line-height: 1.14;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-23 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  line-height: 3.57;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-21 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  line-height: 1.29;
+
+  color: $white;
+}
+
+@mixin Text-Style-2 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  line-height: 1.29;
+
+  color: $white;
+}
+
+@mixin Text-Style-18 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  line-height: 1.29;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-12 {
+  font-family: HelveticaNeueCyr;
+  font-size: 14px;
+  line-height: 3.57;
+
+  color: $white;
+}
+
+@mixin Text-Style-9 {
+  font-family: HelveticaNeueCyr;
+  font-size: 13px;
+  line-height: 1.38;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-8 {
+  font-family: HelveticaNeueCyr;
+  font-size: 13px;
+  line-height: 1.38;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-6 {
+  font-family: HelveticaNeueCyr;
+  font-size: 13px;
+  line-height: 1.46;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-10 {
+  font-family: HelveticaNeueCyr;
+  font-size: 13px;
+  line-height: 1.23;
+
+  color: $white;
+}
+
+@mixin Text-Style-34 {
+  font-family: HelveticaNeueCyr;
+  font-size: 12px;
+  line-height: 1.33;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-31 {
+  font-family: HelveticaNeueCyr;
+  font-size: 12px;
+  line-height: 2.5;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-30 {
+  font-family: HelveticaNeueCyr;
+  font-size: 12px;
+  line-height: 1.5;
+
+  color: $warm-grey;
+}
+
+@mixin Text-Style-29 {
+  font-family: HelveticaNeueCyr;
+  font-size: 12px;
+  line-height: 2.5;
+
+  color: $black-four;
+}
+
+@mixin Text-Style-28 {
+  font-family: HelveticaNeueCyr;
+  font-size: 12px;
+  line-height: 2.5;
+
+  color: $brownish-grey;
+}
+
+@mixin Text-Style-25 {
+  font-family: HelveticaNeueCyr;
+  font-size: 12px;
+  line-height: 2;
+
+  color: $warm-grey;
+}
+
+@mixin Text-Style-14 {
+  font-family: HelveticaNeueCyr;
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 1.1px;
+
+  color: $warm-grey;
+}
